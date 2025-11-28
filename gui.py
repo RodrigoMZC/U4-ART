@@ -3,13 +3,12 @@ from tkinter import filedialog, messagebox
 import numpy as np
 import config
 from PIL import Image, ImageOps
-# Importamos la lógica desde el otro archivo
 from art import ARTNetwork
 
 class NeuralApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Proyecto IA: Red Neuronal ART-1 Visual")
+        self.root.title("Red Neuronal ART")
         
         self.rows = config.GRID_ROWS
         self.cols = config.GRID_COLS
@@ -33,11 +32,11 @@ class NeuralApp:
         left_panel = tk.Frame(main_frame)
         left_panel.grid(row=0, column=0, padx=20)
         
-        tk.Label(left_panel, text="Entrada (Dibuja o Carga)", font=("Arial", 12, "bold")).pack()
+        tk.Label(left_panel, text="Entrada", font=("Arial", 12, "bold")).pack()
         self.canvas_in = tk.Canvas(left_panel, width=self.cols*self.cell_size, height=self.rows*self.cell_size, bg="white", highlightthickness=1, highlightbackground="black")
         self.canvas_in.pack(pady=5)
-        self.canvas_in.bind("<B1-Motion>", self.paint_cell)
-        self.canvas_in.bind("<Button-1>", self.paint_cell)
+        self.canvas_in.bind("<ButtonPress-1>", self.start_paint)
+        self.canvas_in.bind("<B1-Motion>", self.paint_move)
         self.draw_grid(self.canvas_in)
         
         btn_frame = tk.Frame(left_panel)
@@ -87,6 +86,45 @@ class NeuralApp:
             self.input_grid[idx] = 1
             self.canvas_in.itemconfig(f"cell_{row}_{col}", fill="black")
 
+    def start_paint(self, event):
+        """Se ejecuta al hacer el primer clic. Decide si pintamos o borramos."""
+        col = event.x // self.cell_size
+        row = event.y // self.cell_size
+        
+        if 0 <= col < self.cols and 0 <= row < self.rows:
+            idx = row * self.cols + col
+            current_val = self.input_grid[idx]
+            
+            # LÓGICA INTELIGENTE:
+            # Si el pixel actual es 0 (blanco), activamos modo PINTAR (1)
+            # Si el pixel actual es 1 (negro), activamos modo BORRAR (0)
+            if current_val == 0:
+                self.current_paint_mode = 1
+            else:
+                self.current_paint_mode = 0
+            
+            # Aplicar inmediatamente al pixel clickeado
+            self.update_cell(row, col, self.current_paint_mode)
+
+    def paint_move(self, event):
+        """Se ejecuta al arrastrar el mouse. Usa el modo decidido en start_paint."""
+        col = event.x // self.cell_size
+        row = event.y // self.cell_size
+        
+        if 0 <= col < self.cols and 0 <= row < self.rows:
+            # Aplicar el mismo modo (pintar o borrar) a los cuadros por donde pase el mouse
+            self.update_cell(row, col, self.current_paint_mode)
+    def update_cell(self, row, col, val):
+        """Función auxiliar para actualizar visual y lógicamente una celda"""
+        idx = row * self.cols + col
+        # 1. Actualizar lógica (matriz numpy)
+        self.input_grid[idx] = val
+        
+        # 2. Actualizar visual (canvas)
+        # Usamos colores definidos en config
+        color = "black" if val == 1 else "white"
+        self.canvas_in.itemconfig(f"cell_{row}_{col}", fill=color)
+        
     def clear_input(self):
         self.input_grid = np.zeros(self.rows * self.cols)
         for r in range(self.rows):

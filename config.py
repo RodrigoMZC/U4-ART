@@ -3,7 +3,7 @@ GRID_ROWS = 50
 GRID_COLS = 50
 
 # Tamaño visual de cada cuadrito en la pantalla (en píxeles)
-CELL_SIZE = 20 
+CELL_SIZE = 10
 
 # --- PARÁMETROS DE LA RED NEURONAL (ART-1) ---
 MAX_CATEGORIES = 10   # Cuántos patrones distintos puede aprender como máximo
