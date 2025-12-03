@@ -163,11 +163,15 @@ class NeuralApp:
             self.lbl_result.config(text="Dibuja algo primero")
             return
 
-        category_idx, message = self.art.predict(self.input_grid)
+        category_idx, message, pattern_to_draw = self.art.predict(self.input_grid)
         self.lbl_result.config(text=message)
         
-        prototype = self.art.get_prototype(category_idx)
-        self.draw_output_pattern(prototype)
+        if category_idx != -1 and pattern_to_draw is not None:
+            # Dibujamos el patrón que nos devolvió predict (el original antes de aprender)
+            self.draw_output_pattern(pattern_to_draw)
+
+        #prototype = self.art.get_prototype(category_idx)
+        #self.draw_output_pattern(prototype)
 
     def draw_output_pattern(self, pattern):
         for r in range(self.rows):

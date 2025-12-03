@@ -12,5 +12,4 @@ BETA = 1.0            # Parámetro de elección (estándar es 1.0)
 
 # --- PROCESAMIENTO DE IMAGEN ---
 # Umbral para decidir si un gris es blanco o negro (0 a 255)
-# Si la imagen sale muy negra, aumenta esto. Si sale muy blanca, bájalo.
 IMAGE_THRESHOLD = 128

@@ -26,7 +26,7 @@ class ARTNetwork:
         # Si no hay categorías aprendidas, crea la primera
         if self.active_categories == 0:
             self._create_category(0, x)
-            return 0, "Aprendido como nuevo Patrón 0"
+            return 0, "Aprendido como nuevo Patrón 0", x
 
         # Calcular activaciones para todas las categorías activas
         scores = np.dot(x, self.W_bu[:, :self.active_categories])
@@ -44,8 +44,17 @@ class ARTNetwork:
             # Chequeo de Vigilancia (Rho)
             if match_score >= self.rho:
                 # RESONANCIA: Es similar, actualizamos el conocimiento
+                #self._update_weights(j, x)
+                #return j, f"Reconocido como Patrón {j} (Similitud: {match_score:.2f})"
+
+                # Guardamos una copia del recuerdo ANTES de modificarlo/aprender
+                # Esto es lo que mostraremos al usuario como "lo que la red recordó"
+                pattern_original = self.W_td[j, :].copy()
+
+                # RESONANCIA: Es similar, actualizamos el conocimiento (aprendizaje continuo)
                 self._update_weights(j, x)
-                return j, f"Reconocido como Patrón {j} (Similitud: {match_score:.2f})"
+
+                return j, f"Reconocido como Patrón {j} (Similitud: {match_score:.2f})", pattern_original
         
         # Si ninguno cumple la vigilancia, crear nueva categoría
         if self.active_categories < self.m:
